@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 import sys, os
+import re
 import time
 
-print "importing status"
+print "adding . to path"
 sys.path.insert(0, '.')
 
 print "importing flask"
@@ -43,7 +44,7 @@ def before_request():
 @app.route("/", methods=['GET'])
 def base():
 	#TODO: return UI
-	return "OK"
+	return redirect ( url_for('static', filename='index.html' ) )
 
 @app.route("/add/", methods=['GET'])
 def add():
@@ -53,7 +54,7 @@ def add():
 	return jsonify( { 'time': time.time(), 'service': service, 'url': url, 'response': res } )
 
 
-@app.route("/get/<req>")
+@app.route("/get/<req>", methods=['GET'])
 def get_list(req):
 	res = None
 	if   req == "last":
@@ -67,7 +68,7 @@ def get_list(req):
 
 	return jsonify( { 'req': req, 'res': res } )
 
-@app.route('/mark_read/<pic_id>')
+@app.route('/mark_read/<pic_id>', methods=['GET'])
 def mark_read(pic_id):
 	try:
 		pic_id = int(pic_id)
@@ -77,16 +78,53 @@ def mark_read(pic_id):
 	res = PiCastDb.mark_read( pic_id )
 	return jsonify( res )
 
-@app.route('/flush')
+@app.route('/flush', methods=['GET'])
 def flush():
 	res = PiCastDb.flush()
 	return jsonify( res )
 
-@app.route('/flush_all')
+@app.route('/flush_all', methods=['GET'])
 def flush_all():
 	res = PiCastDb.flush_all()
 	return jsonify( res )
 
+
+@app.route('/serve/<wrapper>/', methods=['GET'])
+def serve(wrapper):
+	url     = request.args.get('url'    , None )
+
+	if url is None:
+		return "no url given"
+
+	if wrapper not in config['wrappers']:
+		return "wrapper %s does not exists" % wrapper
+
+	wdata = config['wrappers'][wrapper]
+	wfile = wdata['file'        ]
+	wrerq = wdata['replace_req']
+	wrest = wdata['replace_str']
+
+	wpath = os.path.join( 'static', 'wrappers', wdata['file'] )
+
+	if not os.path.exists( wpath ):
+		return "wrapper %s has no file %s" % ( wrapper, wpath )
+
+	wdata = "".join( open(wpath, 'r').readlines() )
+	
+	for src, dst in wrerq:
+		dstval = request.args.get(dst, None)
+
+		if dstval is None:
+			return "no request %s" % dst
+
+		print "replacing '\<%%%s%%\>' for '%s' = '%s'" % (src, dst, dstval)
+		wdata = re.sub("\<%"+src+"%\>", dstval, wdata)
+
+	for src, dst in wrest:
+		print "replacing '%s' for '%s'" % (src, dst)
+		wdata = re.sub(src, dst, wdata)
+
+	return wdata
 
 def init_db():
 	PiCastDb.load( config['dbname'] )

@@ -2,5 +2,19 @@
 	"browser": "midore",
 	"port"   : 5151,
 	"dbname" : "PiCastDataBase",
-	"DEBUG"  : true
+	"DEBUG"  : true,
+	"wrappers": {
+		"youtube": {
+			"file": "youtube.html",
+			"exe" : "midori -e Fullscreen -a http://127.0.0.1:5151/serve/youtube/?url=<%url%>",
+			"replace_req": [
+				[ "url"         , "url" ]
+			],
+			"replace_str": [
+				[ "youtube.com/" , "youtube.com/embed/" ],
+				[ "watch\\?v="   , ""  ],
+				[ "&list=([^&|\\?]+)", ""  ]
+			]
+		}
+	}
 }

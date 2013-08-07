@@ -7,8 +7,8 @@ sys.path.insert(0, '.')
 print "importing sqlalchemy"
 from sqlalchemy.ext.declarative import declarative_base
 #from sqlalchemy.orm             import sessionmaker, relationship, backref
-from sqlalchemy.orm             import sessionmaker
 #from sqlalchemy                 import create_engine, Column, Integer, String, DateTime, Boolean, Float, ForeignKey, PickleType, LargeBinary, Sequence, and_
+from sqlalchemy.orm             import sessionmaker
 from sqlalchemy                 import create_engine, Column, Integer, String, DateTime, Boolean
 
 #setup variables

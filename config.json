@@ -1,0 +1,6 @@
+{
+	"browser": "midore",
+	"port"   : 5151,
+	"dbname" : "PiCastDataBase",
+	"DEBUG"  : true
+}

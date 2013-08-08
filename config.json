@@ -1,8 +1,8 @@
 {
-	"browser": "midore",
 	"port"   : 5151,
 	"dbname" : "PiCastDataBase",
-	"DEBUG"  : true,
+	"DEBUG"  : false,
+	"SECRET KEY": "PiCastWebServerVerySecureSecretKey",
 	"wrappers": {
 		"youtube": {
 			"file": "youtube.html",

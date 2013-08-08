@@ -4,7 +4,8 @@ import copy
 
 sys.path.insert(0, '.')
 
-print "importing sqlalchemy"
+sys.stderr.write( "LOG: importing sqlalchemy\n" )
+
 from sqlalchemy.ext.declarative import declarative_base
 #from sqlalchemy.orm             import sessionmaker, relationship, backref
 #from sqlalchemy                 import create_engine, Column, Integer, String, DateTime, Boolean, Float, ForeignKey, PickleType, LargeBinary, Sequence, and_
@@ -12,7 +13,8 @@ from sqlalchemy.orm             import sessionmaker
 from sqlalchemy                 import create_engine, Column, Integer, String, DateTime, Boolean
 
 #setup variables
-echo_sql        = True
+DEBUG           = False
+echo_sql        = DEBUG
 
 #variables
 loaded          = False
@@ -20,6 +22,13 @@ Base            = declarative_base()
 engine          = None
 Session         = None
 session         = None
+
+def println( line ):
+        if not DEBUG:
+                sys.stderr.write( "LOG: " )
+                sys.stderr.write( line )
+                sys.stderr.write( "\n" )
+
 
 class picast_db(Base):
     __tablename__ = 'picast'
@@ -44,14 +53,14 @@ def load(db_name):
 	global Session
 	global session
 
-	print "LOADING DB", db_name
+	println( "LOADING DB " + db_name )
 	db_file   = db_name + '.db'
 	engine    = create_engine('sqlite:///'+db_file, echo=echo_sql )
 	Session   = sessionmaker(bind=engine)
 	session   = Session()
 
 	if not os.path.exists(db_file):
-     		print "CREATING DATABASE FROM SOURCE"
+     		println( "CREATING DATABASE FROM SOURCE" )
 
 	        Base.metadata.create_all(engine)
 

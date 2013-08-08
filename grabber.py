@@ -4,17 +4,16 @@ import sys, os
 import re
 import time
 
+pidfile = sys.argv[0] + '.pid'
+pid     = os.getpid()
+
+print "import atexit"
+import atexit
+
 print "adding . to path"
 sys.path.insert(0, '.')
 
-print "importing flask"
-from flask       import Flask, request, session, g, redirect, url_for, abort, render_template, flash, make_response, jsonify, json, Markup, Response, send_from_directory, Blueprint
-
-print "importing jinja"
-from jinja2      import TemplateNotFound
-
-print "importing PiCast db"
-import PiCastDb
+from flask import Flask, json
 
 print "reading config"
 setupfile    = 'config.json'
@@ -23,7 +22,8 @@ config       = json.loads("".join(open(setupfile, 'r').readlines()))
 
 print config
 
-DEBUG = config['DEBUG']
+DEBUG     = config['DEBUG'     ]
+SECRETKEY = config['SECRET KEY']
 
 #VARIABLES
 app                = Flask(__name__)
@@ -126,13 +126,84 @@ def serve(wrapper):
 
 	return wdata
 
+def rmpid():
+	if os.path.exists( pidfile ):
+		print "removing pid file", pidfile, "for pid", pid
+		os.remove( pidfile )
+	else:
+		print "pid file", pidfile, "for pid", pid, "does not exists"
+		sys.exit( 1 )
+
+PiCastDb = None
+Flask    = None
+request  = None
+session  = None
+g        = None
+redirect = None
+url_for  = None
+abort    = None
+render_template     = None 
+flash               = None
+make_response       = None
+jsonify             = None
+Markup              = None
+Response            = None
+send_from_directory = None
+Blueprint           = None
+TemplateNotFound    = None
+
+
 def init_db():
+	print "importing flask"
+        global Flask
+        global request 
+        global session 
+        global g 
+        global redirect 
+        global url_for 
+        global abort 
+        global render_template 
+        global flash 
+        global make_response 
+        global jsonify 
+        global Markup 
+        global Response 
+        global send_from_directory 
+        global Blueprint
+	#from flask       import Flask, request, session, g, redirect, url_for, abort, render_template, flash, make_response, jsonify, Markup, Response, send_from_directory, Blueprint
+	from flask       import Flask, request, jsonify
+
+	print "importing jinja"
+        global TemplateNotFound
+	#from jinja2      import TemplateNotFound
+
+
+	print "importing PiCast db"
+	global PiCastDb
+	import PiCastDb
+
+	PiCastDb.DEBUG = DEBUG
+
+	if os.path.exists( pidfile ):
+		print "server already running. delete pid file",pidfile,"if not\npid is", "".join( open(pidfile, 'r').readlines() )
+		sys.exit(1)
+	else:
+		print "creating pid file", pidfile, "with pid", pid
+		open(pidfile, 'w').write( str(pid) )
+
+	atexit.register( rmpid )
+
 	PiCastDb.load( config['dbname'] )
 
 def main():
-	app.debug = DEBUG
+	app.debug      = DEBUG
+	app.secret_key = SECRETKEY
 	app.before_first_request( init_db )
-	app.run(port=config['port'], host='0.0.0.0')
+	try:
+		app.run(port=config['port'], host='0.0.0.0')
+	except:
+		print "server already running"
+		sys.exit( 1 )
 
-print "GOT HERE"
+
 if __name__ == "__main__": main()

@@ -1,7 +1,7 @@
 {
 	"port"   : 5151,
 	"dbname" : "PiCastDataBase",
-	"DEBUG"  : false,
+	"DEBUG"  : true,
 	"SECRET KEY": "PiCastWebServerVerySecureSecretKey",
 	"wrappers": {
 		"youtube": {

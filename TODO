@@ -1,9 +1,6 @@
 20130806:
 	Well, everything, but do not forget:
-	- 0: lock file for server
-	- 0: lock file for runner
-	- 1: PID file for server
-	- 1: PID file for runner
-	- 1: PID file for excutable
 	- 2: Cookie
 	- 3: Login
+	- 4: wget
+	- 5: 

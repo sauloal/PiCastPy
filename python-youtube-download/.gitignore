@@ -1,0 +1,8 @@
+*.pyc
+*.pyo
+*.swp
+*.psd
+.DS_Store
+build/*
+dist/*
+pytube.egg-info/*

@@ -43,29 +43,23 @@ class Video(object):
         path = (normpath(path) + '/' if path else '')
         fullpath = '%s%s.%s' % (path, self.filename, self.extension)
         response = urlopen(self.url)
+        with open(fullpath, 'wb') as dst_file:
+            meta_data = dict(response.info().items())
+            file_size = int(meta_data.get("Content-Length") or
+                            meta_data.get("content-length"))
+            self._bytes_received = 0
+            while True:
+                self._buffer = response.read(chunk_size)
+                if not self._buffer:
+                    if on_finish:
+                        on_finish(fullpath)
+                    break
 
-	sys.stderr.write( "URL:" + self.url + "\n" )
+                self._bytes_received += len(self._buffer)
+                dst_file.write(self._buffer)
+                if on_progress:
+                    on_progress(self._bytes_received, file_size)
 
-	dst_file = fhd
-	if dst_file is None:
-		dst_file = open(fullpath, 'wb')
- 
-        meta_data = dict(response.info().items())
-        file_size = int(meta_data.get("Content-Length") or
-                        meta_data.get("content-length"))
-        self._bytes_received = 0
-        while True:
-            self._buffer = response.read(chunk_size)
-            if not self._buffer:
-                if on_finish:
-                    on_finish(fullpath)
-                break
-
-            self._bytes_received += len(self._buffer)
-            dst_file.write(self._buffer)
-            if on_progress:
-                on_progress(self._bytes_received, file_size)
-	dst_file.close()
 
     def stream(self, path=None, chunk_size=8*1024,
                  on_progress=None, on_finish=None):

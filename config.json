@@ -1,8 +1,10 @@
 {
-	"port"   : 5151,
-	"dbname" : "PiCastDataBase",
-	"DEBUG"  : true,
+	"port"      : 5151,
+	"dbname"    : "PiCastDataBase",
+	"DEBUG"     : true,
 	"SECRET KEY": "PiCastWebServerVerySecureSecretKey",
+	"mode"      : "xbmc",
+	"xbmc_url"  : "127.0.0.1:8080",
 	"wrappers": {
 		"youtube": {
 			"file": "youtube.html",
